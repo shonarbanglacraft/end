@@ -2037,6 +2037,9 @@
       syncMusicState();
     }
 
+    setMusicTrack(fallbackMusic[0]);
+    loadMusic();
+
     /* ─── GALLERY ────────────────────────────────────────── */
     const fallbackGallery = [
       { src: "gallary/2026-04-08_01.33.55.png", caption: "2026-04-08 01.33.55" },
@@ -2150,7 +2153,7 @@
       renderGallery(fallbackGallery);
     }
 
-    window.addEventListener("load", () => { loadGallery(); loadMusic(); });
+    window.addEventListener("load", () => { loadGallery(); });
 
     /* ─── SCROLL-LOCKED GREEN WAVE TRANSITION ───────────────
      *
@@ -2192,6 +2195,8 @@
       const FILL_ZONE = 1400;
       const WAVE_STEP = isCoarsePointer ? 10 : 4;
       const WAVE_LAYERS = isCoarsePointer ? 2 : 3;
+      const MOBILE_FRAME_MS = isCoarsePointer ? 1000 / 30 : 0;
+      let lastCanvasFrameTs = 0;
 
       allSections.forEach(el => {
         el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
@@ -2346,6 +2351,11 @@
       }, { passive: true });
 
       function drawFrame(ts) {
+        if (MOBILE_FRAME_MS && lastCanvasFrameTs && ts - lastCanvasFrameTs < MOBILE_FRAME_MS) {
+          requestAnimationFrame(drawFrame);
+          return;
+        }
+        lastCanvasFrameTs = ts;
         const dt = Math.min((ts - lastTs) / 1000, 0.05);
         lastTs = ts;
         animTime += dt;
@@ -2374,14 +2384,14 @@
         const startY = H + (isCoarsePointer ? 80 : 120);
         const surfaceY = startY - displayFill * (startY + overshoot);
 
-        const waves = isCoarsePointer ? [
+        const waves = (isCoarsePointer ? [
           { amp: (72 + displayFill * 30) * waveCalm + 2, freq: 0.0065, speed: 0.65, phase: 0, alpha: 1.00 },
           { amp: (42 + displayFill * 18) * waveCalm + 2, freq: 0.0115, speed: -0.95, phase: 2.1, alpha: 0.42 },
         ] : [
           { amp: (80 + displayFill * 40) * waveCalm + 2, freq: 0.0055, speed: 0.7, phase: 0, alpha: 1.00 },
           { amp: (55 + displayFill * 28) * waveCalm + 2, freq: 0.0095, speed: -1.1, phase: 2.1, alpha: 0.50 },
           { amp: (35 + displayFill * 18) * waveCalm + 2, freq: 0.0155, speed: 1.5, phase: 4.2, alpha: 0.28 },
-        ];
+        ]).slice(0, WAVE_LAYERS);
 
         waves.forEach(({ amp, freq, speed, phase, alpha }) => {
           ctx.save();
@@ -2504,8 +2514,16 @@
       );
       document.addEventListener('keydown', () => pauseAuto());
 
-      function autoTick() {
-        const now = performance.now();
+      let lastAutoFrameTs = 0;
+
+      function autoTick(ts) {
+        if (MOBILE_FRAME_MS && lastAutoFrameTs && ts - lastAutoFrameTs < MOBILE_FRAME_MS) {
+          requestAnimationFrame(autoTick);
+          return;
+        }
+        lastAutoFrameTs = ts;
+
+        const now = typeof ts === 'number' ? ts : performance.now();
         const dt = autoLastTs ? Math.min((now - autoLastTs) / 1000, 0.05) : 0;
         autoLastTs = now;
 
