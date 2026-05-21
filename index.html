@@ -2188,7 +2188,10 @@
       let lockEngaged = false;
       let heroLockY = 0;
       let virtualScroll = 0;
+      const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
       const FILL_ZONE = 1400;
+      const WAVE_STEP = isCoarsePointer ? 10 : 4;
+      const WAVE_LAYERS = isCoarsePointer ? 2 : 3;
 
       allSections.forEach(el => {
         el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
@@ -2367,11 +2370,14 @@
         const waveCalm = 1 - Math.pow(displayFill, 3);
         const maxAmp = (80 + displayFill * 40) * waveCalm + 2;
 
-        const overshoot = 160;
-        const startY = H + 120;
+        const overshoot = isCoarsePointer ? 120 : 160;
+        const startY = H + (isCoarsePointer ? 80 : 120);
         const surfaceY = startY - displayFill * (startY + overshoot);
 
-        const waves = [
+        const waves = isCoarsePointer ? [
+          { amp: (72 + displayFill * 30) * waveCalm + 2, freq: 0.0065, speed: 0.65, phase: 0, alpha: 1.00 },
+          { amp: (42 + displayFill * 18) * waveCalm + 2, freq: 0.0115, speed: -0.95, phase: 2.1, alpha: 0.42 },
+        ] : [
           { amp: (80 + displayFill * 40) * waveCalm + 2, freq: 0.0055, speed: 0.7, phase: 0, alpha: 1.00 },
           { amp: (55 + displayFill * 28) * waveCalm + 2, freq: 0.0095, speed: -1.1, phase: 2.1, alpha: 0.50 },
           { amp: (35 + displayFill * 18) * waveCalm + 2, freq: 0.0155, speed: 1.5, phase: 4.2, alpha: 0.28 },
@@ -2383,7 +2389,7 @@
           ctx.fillStyle = grad;
           ctx.beginPath();
           ctx.moveTo(-2, H + 2);
-          for (let x = -2; x <= W + 4; x += 4) {
+          for (let x = -2; x <= W + 4; x += WAVE_STEP) {
             const y = surfaceY
               + Math.sin(x * freq + animTime * speed + phase) * amp
               + Math.sin(x * freq * 1.9 + animTime * speed * 0.55 + phase + 1.3) * amp * 0.45
@@ -2396,7 +2402,7 @@
           ctx.restore();
         });
 
-        if (displayFill > 0.02 && displayFill < 0.99) {
+        if (!isCoarsePointer && displayFill > 0.02 && displayFill < 0.99) {
           const glowY = surfaceY + Math.sin(animTime * 1.1) * 28;
           const glow = ctx.createLinearGradient(0, glowY - 50, 0, glowY + 28);
           glow.addColorStop(0, 'rgba(131,223,116,0)');
@@ -2432,7 +2438,6 @@
       let savedScrollBehavior = '';
       let exactScrollY = 0;
       let currentSpeed = 30;
-      const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
       const SPEED_HOME = isCoarsePointer ? 24 : 30;
       const SPEED_CONTENT = isCoarsePointer ? 84 : 100;
       const SPEED_WAVE_TARGET = isCoarsePointer ? 240 : 300; // Faster target for the wave so it doesn't take 10 seconds
