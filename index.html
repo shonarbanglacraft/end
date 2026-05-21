@@ -2432,11 +2432,11 @@
       let savedScrollBehavior = '';
       let exactScrollY = 0;
       let currentSpeed = 30;
-      let resumeTimeout = null;
-
-      const SPEED_HOME = 30;
-      const SPEED_CONTENT = 100;
-      const SPEED_WAVE_TARGET = 300; // Faster target for the wave so it doesn't take 10 seconds
+      const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+      const SPEED_HOME = isCoarsePointer ? 24 : 30;
+      const SPEED_CONTENT = isCoarsePointer ? 84 : 100;
+      const SPEED_WAVE_TARGET = isCoarsePointer ? 240 : 300; // Faster target for the wave so it doesn't take 10 seconds
+      const SPEED_EASE = isCoarsePointer ? 0.85 : 1.2;
 
       function setAutoButtonState(active) {
         if (!autoScrollBtn) return;
@@ -2458,38 +2458,20 @@
         setAutoButtonState(true);
       }
 
-      function pauseAutoWithResume() {
-        // Capture where the user left off and schedule a resume in 1500ms.
-        // Always refresh the resume timer on repeated interactions.
-        exactScrollY = window.scrollY;
-
-        // If autoscroll was running, pause UI state now
-        if (autoOn) {
-          autoOn = false;
-          document.documentElement.style.scrollBehavior = savedScrollBehavior;
-          document.body.classList.remove('autoscroll-active');
-          if (vignette) vignette.classList.add('off');
-          setAutoButtonState(false);
-        }
-
-        // Refresh resume timeout
-        if (resumeTimeout) clearTimeout(resumeTimeout);
-        resumeTimeout = setTimeout(() => resumeAuto(), 1500);
+      function stopAuto() {
+        if (!autoOn) return;
+        autoOn = false;
+        document.documentElement.style.scrollBehavior = savedScrollBehavior;
+        document.body.classList.remove('autoscroll-active');
+        if (vignette) vignette.classList.add('off');
+        setAutoButtonState(false);
       }
 
-      function resumeAuto() {
-        // Resume autoscroll from where the user left it
-        if (autoOn) return;
-        resumeTimeout = null;
-        autoOn = true;
-        autoLastTs = 0;
-        // ensure exactScrollY tracks current position
+      function pauseAuto() {
+        // Capture where the user left off and keep autoscroll paused until restarted manually.
         exactScrollY = window.scrollY;
-        savedScrollBehavior = document.documentElement.style.scrollBehavior || '';
-        document.documentElement.style.scrollBehavior = 'auto';
-        document.body.classList.add('autoscroll-active');
-        if (vignette) vignette.classList.remove('off');
-        setAutoButtonState(true);
+
+        stopAuto();
       }
 
       if (autoScrollBtn) {
@@ -2511,11 +2493,11 @@
 
       window.addEventListener('pageshow', resetToTop, { once: true });
 
-      // User interactions pause autoscroll and will automatically resume
+      // User interactions pause autoscroll until the user starts it again.
       ['wheel', 'touchstart', 'mousedown', 'touchmove'].forEach(evt =>
-        window.addEventListener(evt, () => pauseAutoWithResume(), { passive: true })
+        window.addEventListener(evt, () => pauseAuto(), { passive: true })
       );
-      document.addEventListener('keydown', () => pauseAutoWithResume());
+      document.addEventListener('keydown', () => pauseAuto());
 
       function autoTick() {
         const now = performance.now();
@@ -2532,7 +2514,7 @@
           }
 
           // Smoothly ease the current speed towards the target speed
-          currentSpeed += (targetSpeed - currentSpeed) * Math.min(1, dt * 1.2);
+          currentSpeed += (targetSpeed - currentSpeed) * Math.min(1, dt * SPEED_EASE);
 
           if (locked) {
             // Drive the virtual scroll (wave fill) forward with easing speed
