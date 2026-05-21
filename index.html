@@ -348,16 +348,12 @@
       animation: grain-shift 0.4s steps(2) infinite;
     }
 
-    /* ─── MOBILE PERF: kill expensive GPU layers ─────────── */
+    /* ─── MOBILE PERF ────────────────────────────────────── */
     @media (pointer: coarse) {
-      /* Grain is a 400vw×400vh SVG filter — devastating on mobile */
+      /* SVG noise filter over 400vw×400vh = GPU killer */
       #grain { display: none !important; }
-
-      /* body::before blur + animation causes per-frame repaints */
-      body::before {
-        filter: none !important;
-        animation: none !important;
-      }
+      /* Blurred animated gradient = per-frame repaint */
+      body::before { filter: none !important; animation: none !important; }
     }
 
     @keyframes grain-shift {
@@ -1383,7 +1379,7 @@
       pointer-events: none;
       z-index: 2;
       will-change: contents;
-      transform: translateZ(0); /* own GPU compositing layer */
+      transform: translateZ(0);
     }
 
     #flowingWaveSvg {
@@ -1829,8 +1825,15 @@
 
     /* ─── SCROLL TO TOP ──────────────────────────────────── */
     const scrollTopBtn = document.getElementById('scrollTop');
+    let _scrollTopRaf = false;
     window.addEventListener('scroll', () => {
-      scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
+      if (!_scrollTopRaf) {
+        _scrollTopRaf = true;
+        requestAnimationFrame(() => {
+          _scrollTopRaf = false;
+          scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
+        });
+      }
     }, { passive: true });
 
     /* ─── NAV ACTIVE + PROGRESS ─────────────────────────── */
@@ -1850,47 +1853,59 @@
 
     sections.forEach(s => navObserver.observe(s));
 
-    window.addEventListener('scroll', () => {
-      const dh = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-      const scrollable = dh - window.innerHeight;
-      const pct = scrollable > 0 ? Math.min(100, (window.scrollY / scrollable) * 100) : 0;
+    // Cache layout values — recomputed on resize only, NOT on every scroll
+    const homeEl = document.getElementById('home');
+    let _cachedHomeHeight = homeEl ? homeEl.offsetHeight : 0;
+    let _cachedScrollable = Math.max(1,
+      Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight);
+    window.addEventListener('resize', () => {
+      _cachedHomeHeight = homeEl ? homeEl.offsetHeight : 0;
+      _cachedScrollable = Math.max(1,
+        Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) - window.innerHeight);
+    }, { passive: true });
+
+    // rAF-throttle the scroll handler so it never runs more than once per frame
+    let _scrollRafPending = false;
+    function _onScrollFrame() {
+      _scrollRafPending = false;
+      const sy = window.scrollY;
+      const scrollable = _cachedScrollable;
+
+      // Nav progress bar
+      const pct = Math.min(100, (sy / scrollable) * 100);
       navFill.style.width = pct + '%';
 
-      // CSS vars for background animation
-      const sp = scrollable > 0 ? (window.scrollY / scrollable) : 0;
+      // CSS vars — use scrollY directly, no getBoundingClientRect
+      const sp = sy / scrollable;
       document.documentElement.style.setProperty('--sp', sp.toFixed(3));
-      const home = document.getElementById('home');
-      if (home) {
-        const r = home.getBoundingClientRect();
-        const ah = r.bottom < window.innerHeight * 0.4
-          ? Math.min(1, (window.innerHeight * 0.4 - r.bottom) / (window.innerHeight * 0.6))
-          : 0;
-        document.documentElement.style.setProperty('--after-home', ah.toFixed(3));
-      }
 
-      // Update flowing wave path if it exists
+      // --after-home: estimate from scrollY vs cached hero height (no reflow)
+      const heroBottom = _cachedHomeHeight - sy; // rough viewport-relative bottom
+      const ah = heroBottom < window.innerHeight * 0.4
+        ? Math.min(1, (window.innerHeight * 0.4 - heroBottom) / (window.innerHeight * 0.6))
+        : 0;
+      document.documentElement.style.setProperty('--after-home', ah.toFixed(3));
+
+      // Flowing wave path
       const wavePath = document.getElementById('flowingWavePath');
-      const waveSvg = document.getElementById('flowingWaveSvg');
-      if (wavePath && waveSvg && home) {
-        const r = home.getBoundingClientRect();
-
-        // Draw the line progressively
+      if (wavePath) {
         if (!wavePath.dataset.length) {
           wavePath.dataset.length = wavePath.getTotalLength();
           wavePath.style.strokeDasharray = wavePath.dataset.length;
         }
         const len = parseFloat(wavePath.dataset.length);
-
-        // We want the progress to start at 0 when we enter the content phase
-        // The content phase starts roughly when window.scrollY > hero height
-        const scrollAfterHome = Math.max(0, window.scrollY - r.height);
-        const contentScrollable = Math.max(1, dh - window.innerHeight - r.height);
-        let waveSp = scrollAfterHome / contentScrollable;
-        waveSp = Math.max(0, Math.min(1, waveSp));
-
-        // Smooth easing for the progress
+        const scrollAfterHome = Math.max(0, sy - _cachedHomeHeight);
+        const contentScrollable = Math.max(1, scrollable - _cachedHomeHeight);
+        const waveSp = Math.max(0, Math.min(1, scrollAfterHome / contentScrollable));
         const easedSp = waveSp * waveSp * (3 - 2 * waveSp);
         wavePath.style.strokeDashoffset = len * (1 - easedSp);
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!_scrollRafPending) {
+        _scrollRafPending = true;
+        requestAnimationFrame(_onScrollFrame);
       }
     }, { passive: true });
 
@@ -2203,7 +2218,7 @@
       let heroLockY = 0;
       let virtualScroll = 0;
       const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-      const FILL_ZONE = 1400;
+      const FILL_ZONE = isCoarsePointer ? 400 : 1400; // mobile: ~400px virtual scroll to fill (was 1400)
       const WAVE_STEP = isCoarsePointer ? 10 : 4;
       const WAVE_LAYERS = isCoarsePointer ? 2 : 3;
 
@@ -2332,28 +2347,25 @@
         if (ignoreLock) return;
 
         if (!lockEngaged) {
-          // ONLY engage initial lock if we are scrolling DOWN.
-          // This prevents the infinite trap when unlocking after draining the wave.
           if (isScrollingDown) {
-            const r = hero.getBoundingClientRect();
-            // Engage when hero bottom reaches the viewport bottom (allow a 5px margin)
-            if (r.bottom <= H + 5) {
+            // Use cached hero height + scrollY to avoid getBoundingClientRect reflow
+            const heroBottomInViewport = _cachedHomeHeight - currentScrollY;
+            if (heroBottomInViewport <= H + 5) {
               lockEngaged = true;
               virtualScroll = 0;
               fill = 0;
-              heroLockY = window.scrollY;
+              heroLockY = currentScrollY;
               enterLock();
-              window.scrollTo({ top: heroLockY, behavior: 'instant' });
+              document.documentElement.scrollTop = heroLockY;
             }
           }
         } else {
-          // We are in the content phase. Re-engage lock when scrolling UP to the lock position.
           if (!isScrollingDown) {
-            if (window.scrollY <= heroLockY + 5) {
+            if (currentScrollY <= heroLockY + 5) {
               virtualScroll = FILL_ZONE;
               fill = 1;
               enterLock();
-              window.scrollTo({ top: heroLockY, behavior: 'instant' });
+              document.documentElement.scrollTop = heroLockY;
             }
           }
         }
@@ -2364,19 +2376,15 @@
         lastTs = ts;
         animTime += dt;
 
-        // ── Run autoscroll logic inside the same rAF loop ──────
-        // (avoids two separate callbacks fighting each other per frame)
-        const autoNow = ts;
-        const autoDt = autoLastTs ? Math.min((autoNow - autoLastTs) / 1000, 0.05) : 0;
-        autoLastTs = autoNow;
+        // ── Autoscroll logic (merged — one rAF loop, not two) ──
+        const autoDt = autoLastTs ? Math.min((ts - autoLastTs) / 1000, 0.05) : 0;
+        autoLastTs = ts;
 
         if (autoOn) {
           let targetSpeed = SPEED_HOME;
-          if (locked) {
-            targetSpeed = SPEED_WAVE_TARGET;
-          } else if (lockEngaged) {
-            targetSpeed = SPEED_CONTENT;
-          }
+          if (locked) targetSpeed = SPEED_WAVE_TARGET;
+          else if (lockEngaged) targetSpeed = SPEED_CONTENT;
+
           currentSpeed += (targetSpeed - currentSpeed) * Math.min(1, autoDt * SPEED_EASE);
 
           if (locked) {
@@ -2401,13 +2409,13 @@
             }
           }
         }
-        // ── End autoscroll logic ───────────────────────────────
+        // ── End autoscroll ─────────────────────────────────────
 
         displayFill += (fill - displayFill) * Math.min(1, dt * 9);
         if (Math.abs(fill - displayFill) < 0.001) displayFill = fill;
 
         if (displayFill < 0.002) {
-          // Nothing to draw — skip even the clearRect to avoid unnecessary GPU flush
+          // Nothing to draw — skip clearRect too (no GPU flush needed)
           requestAnimationFrame(drawFrame);
           return;
         }
@@ -2494,7 +2502,7 @@
       let currentSpeed = 30;
       const SPEED_HOME = isCoarsePointer ? 24 : 30;
       const SPEED_CONTENT = isCoarsePointer ? 84 : 100;
-      const SPEED_WAVE_TARGET = isCoarsePointer ? 240 : 300; // Faster target for the wave so it doesn't take 10 seconds
+      const SPEED_WAVE_TARGET = isCoarsePointer ? 600 : 300; // mobile: fast fill (~0.7s), was 240
       const SPEED_EASE = isCoarsePointer ? 0.85 : 1.2;
 
       function setAutoButtonState(active) {
@@ -2558,7 +2566,7 @@
       );
       document.addEventListener('keydown', () => pauseAuto());
 
-      // autoTick is merged into drawFrame above — no separate rAF loop needed.
+      // autoTick is merged into drawFrame — no separate rAF loop needed.
 
       resetToTop();
 
