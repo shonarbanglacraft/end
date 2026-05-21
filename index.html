@@ -348,6 +348,18 @@
       animation: grain-shift 0.4s steps(2) infinite;
     }
 
+    /* ─── MOBILE PERF: kill expensive GPU layers ─────────── */
+    @media (pointer: coarse) {
+      /* Grain is a 400vw×400vh SVG filter — devastating on mobile */
+      #grain { display: none !important; }
+
+      /* body::before blur + animation causes per-frame repaints */
+      body::before {
+        filter: none !important;
+        animation: none !important;
+      }
+    }
+
     @keyframes grain-shift {
       0% {
         transform: translate(0, 0);
@@ -1370,6 +1382,8 @@
       height: 100%;
       pointer-events: none;
       z-index: 2;
+      will-change: contents;
+      transform: translateZ(0); /* own GPU compositing layer */
     }
 
     #flowingWaveSvg {
@@ -2350,15 +2364,55 @@
         lastTs = ts;
         animTime += dt;
 
+        // ── Run autoscroll logic inside the same rAF loop ──────
+        // (avoids two separate callbacks fighting each other per frame)
+        const autoNow = ts;
+        const autoDt = autoLastTs ? Math.min((autoNow - autoLastTs) / 1000, 0.05) : 0;
+        autoLastTs = autoNow;
+
+        if (autoOn) {
+          let targetSpeed = SPEED_HOME;
+          if (locked) {
+            targetSpeed = SPEED_WAVE_TARGET;
+          } else if (lockEngaged) {
+            targetSpeed = SPEED_CONTENT;
+          }
+          currentSpeed += (targetSpeed - currentSpeed) * Math.min(1, autoDt * SPEED_EASE);
+
+          if (locked) {
+            virtualScroll = Math.min(FILL_ZONE, virtualScroll + currentSpeed * autoDt);
+            fill = virtualScroll / FILL_ZONE;
+            if (fill >= 1) {
+              exitLock();
+              exactScrollY = window.scrollY;
+            }
+          } else {
+            exactScrollY += currentSpeed * autoDt;
+            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+            if (exactScrollY > maxScroll) {
+              exactScrollY = maxScroll;
+              document.documentElement.scrollTop = exactScrollY;
+              if (!finaleActivated) {
+                virtualFinaleScroll += currentSpeed * autoDt;
+                if (virtualFinaleScroll > 400) triggerFinale();
+              }
+            } else {
+              document.documentElement.scrollTop = exactScrollY;
+            }
+          }
+        }
+        // ── End autoscroll logic ───────────────────────────────
+
         displayFill += (fill - displayFill) * Math.min(1, dt * 9);
         if (Math.abs(fill - displayFill) < 0.001) displayFill = fill;
 
-        ctx.clearRect(0, 0, W, H);
-
         if (displayFill < 0.002) {
+          // Nothing to draw — skip even the clearRect to avoid unnecessary GPU flush
           requestAnimationFrame(drawFrame);
           return;
         }
+
+        ctx.clearRect(0, 0, W, H);
 
         const grad = ctx.createLinearGradient(0, 0, 0, H);
         grad.addColorStop(0.0, '#0d3b0a');
@@ -2504,56 +2558,7 @@
       );
       document.addEventListener('keydown', () => pauseAuto());
 
-      function autoTick() {
-        const now = performance.now();
-        const dt = autoLastTs ? Math.min((now - autoLastTs) / 1000, 0.05) : 0;
-        autoLastTs = now;
-
-        if (autoOn) {
-          // Determine the target speed based on our current phase
-          let targetSpeed = SPEED_HOME;
-          if (locked) {
-            targetSpeed = SPEED_WAVE_TARGET; // Ease into a faster speed to fill the wave
-          } else if (lockEngaged) {
-            targetSpeed = SPEED_CONTENT; // "rest is same as now"
-          }
-
-          // Smoothly ease the current speed towards the target speed
-          currentSpeed += (targetSpeed - currentSpeed) * Math.min(1, dt * SPEED_EASE);
-
-          if (locked) {
-            // Drive the virtual scroll (wave fill) forward with easing speed
-            virtualScroll = Math.min(FILL_ZONE, virtualScroll + currentSpeed * dt);
-            fill = virtualScroll / FILL_ZONE;
-            if (fill >= 1) {
-              exitLock();
-              exactScrollY = window.scrollY; // Resync exactScrollY after lock finishes
-            }
-          } else {
-            // Accumulate decimal scroll properly to prevent browser sub-pixel truncation
-            exactScrollY += currentSpeed * dt;
-            
-            const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-            if (exactScrollY > maxScroll) {
-              // We hit the physical bottom, start accumulating "invisible" overscroll
-              exactScrollY = maxScroll;
-              window.scrollTo({ top: exactScrollY, behavior: 'instant' });
-              
-              if (!finaleActivated) {
-                virtualFinaleScroll += currentSpeed * dt;
-                if (virtualFinaleScroll > 400) { // Require ~400px of virtual scrolling to trigger
-                  triggerFinale();
-                }
-              }
-            } else {
-              window.scrollTo({ top: exactScrollY, behavior: 'instant' });
-            }
-          }
-        }
-        requestAnimationFrame(autoTick);
-      }
-
-      requestAnimationFrame(autoTick);
+      // autoTick is merged into drawFrame above — no separate rAF loop needed.
 
       resetToTop();
 
