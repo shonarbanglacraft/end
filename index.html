@@ -1261,17 +1261,6 @@
       word-break: break-word;
     }
 
-    .player-role-badge {
-      font-size: 0.58rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(131, 223, 116, 0.1);
-      color: var(--accent);
-      font-weight: 700;
-    }
-
     .player-copy-hint {
       position: absolute;
       top: 8px;
@@ -1560,29 +1549,6 @@
       filter: saturate(1.1);
     }
 
-    .memory-card::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 0;
-      height: 48%;
-      background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-      pointer-events: none;
-    }
-
-    .memory-card figcaption {
-      position: absolute;
-      inset: auto 14px 14px;
-      z-index: 2;
-      padding: 8px 12px;
-      border-radius: 10px;
-      background: rgba(10, 10, 10, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #f5f5f5;
-      font-size: 0.8rem;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-    }
-
     /* ─── FULL-FEATURED GALLERY LIGHTBOX ────────────────── */
     .viewer {
       position: fixed;
@@ -1637,15 +1603,10 @@
     .viewer-bar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       width: 100%;
       padding: 12px 6px;
       color: #e0e0e0;
-    }
-
-    .viewer-caption {
-      font-size: 0.85rem;
-      color: #fff;
     }
 
     .viewer-counter {
@@ -1819,6 +1780,21 @@
     }
 
     /* ─── RESPONSIVE STYLES ─────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    .player-card:focus-visible,
+    .memory-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
     @media (max-width: 900px) {
       .stat-row {
         grid-template-columns: repeat(2, 1fr);
@@ -2021,16 +1997,16 @@
           <div class="stat-item">
             <div class="stat-icon">⚔️</div>
             <div class="stat-number"><span data-target="14">0</span></div>
-            <div class="stat-label">Founding Players</div>
+            <div class="stat-label">Players</div>
           </div>
           <div class="stat-item">
             <div class="stat-icon">🧩</div>
-            <div class="stat-number"><span data-target="36">0</span></div>
-            <div class="stat-label">Custom Plugins</div>
+            <div class="stat-number"><span data-target="44" id="pluginStat">0</span></div>
+            <div class="stat-label">Plugins</div>
           </div>
           <div class="stat-item">
             <div class="stat-icon">📸</div>
-            <div class="stat-number"><span data-target="21">0</span><span class="stat-plus">+</span></div>
+            <div class="stat-number"><span data-target="21" id="memStat">0</span><span class="stat-plus">+</span></div>
             <div class="stat-label">Memories Saved</div>
           </div>
         </div>
@@ -2126,148 +2102,133 @@
         <h2 class="split-heading">Thanks for joining</h2>
       </div>
       <p class="players-note">
-        A heartfelt thank you to everyone who logged in, explored, and helped make the server feel alive. Click any
-        player card to copy their Minecraft IGN!
+        A heartfelt thank you to everyone who logged in, explored, and helped make the server feel alive. Click any player card to copy their Minecraft username!
       </p>
       <div class="players-grid">
-        <article class="player-card" data-ign="heysiam">
+        <article class="player-card" data-ign="heysiam" tabindex="0" role="button" aria-label="Copy username heysiam">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/heysiam/128" alt="heysiam" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">heysiam</span>
-          <span class="player-role-badge">Founder</span>
         </article>
 
-        <article class="player-card" data-ign="Prime_Nirob">
+        <article class="player-card" data-ign="Prime_Nirob" tabindex="0" role="button" aria-label="Copy username Prime_Nirob">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/Prime_Nirob/128" alt="Prime_Nirob" class="player-avatar"
-              loading="lazy" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">Prime_Nirob</span>
-          <span class="player-role-badge">Veteran</span>
         </article>
 
-        <article class="player-card" data-ign="b_UnheardLion329">
+        <article class="player-card" data-ign="b_UnheardLion329" tabindex="0" role="button" aria-label="Copy username b_UnheardLion329">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/b_UnheardLion329/128" alt="b_UnheardLion329" class="player-avatar"
-              loading="lazy" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">b_UnheardLion329</span>
-          <span class="player-role-badge">Explorer</span>
         </article>
 
-        <article class="player-card" data-ign="NOT_Xelvion">
+        <article class="player-card" data-ign="NOT_Xelvion" tabindex="0" role="button" aria-label="Copy username NOT_Xelvion">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/NOT_Xelvion/128" alt="NOT_Xelvion" class="player-avatar"
-              loading="lazy" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">NOT_Xelvion</span>
-          <span class="player-role-badge">Builder</span>
         </article>
 
-        <article class="player-card" data-ign="kamado_sanny">
+        <article class="player-card" data-ign="kamado_sanny" tabindex="0" role="button" aria-label="Copy username kamado_sanny">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/kamado_sanny/128" alt="kamado_sanny" class="player-avatar"
-              loading="lazy" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">kamado_sanny</span>
-          <span class="player-role-badge">Adventurer</span>
         </article>
 
-        <article class="player-card" data-ign="tahmid">
+        <article class="player-card" data-ign="tahmid" tabindex="0" role="button" aria-label="Copy username tahmid">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/tahmid/128" alt="tahmid" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">tahmid</span>
-          <span class="player-role-badge">OG Member</span>
         </article>
 
-        <article class="player-card" data-ign="seajon">
+        <article class="player-card" data-ign="seajon" tabindex="0" role="button" aria-label="Copy username seajon">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/seajon/128" alt="seajon" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">seajon</span>
-          <span class="player-role-badge">Fighter</span>
         </article>
 
-        <article class="player-card" data-ign="SylexPlayss">
+        <article class="player-card" data-ign="SylexPlayss" tabindex="0" role="button" aria-label="Copy username SylexPlayss">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/SylexPlayss/128" alt="SylexPlayss" class="player-avatar"
-              loading="lazy" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">SylexPlayss</span>
-          <span class="player-role-badge">Engineer</span>
         </article>
 
-        <article class="player-card" data-ign="b_SkilledAlpaca5">
+        <article class="player-card" data-ign="b_SkilledAlpaca5" tabindex="0" role="button" aria-label="Copy username b_SkilledAlpaca5">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/b_SkilledAlpaca5/128" alt="b_SkilledAlpaca5" class="player-avatar"
-              loading="lazy" onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              loading="lazy" onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">b_SkilledAlpaca5</span>
-          <span class="player-role-badge">Explorer</span>
         </article>
 
-        <article class="player-card" data-ign="dip237">
+        <article class="player-card" data-ign="dip237" tabindex="0" role="button" aria-label="Copy username dip237">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/dip237/128" alt="dip237" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">dip237</span>
-          <span class="player-role-badge">Adventurer</span>
         </article>
 
-        <article class="player-card" data-ign="Death_67">
+        <article class="player-card" data-ign="Death_67" tabindex="0" role="button" aria-label="Copy username Death_67">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/Death_67/128" alt="Death_67" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">Death_67</span>
-          <span class="player-role-badge">Night Hunter</span>
         </article>
 
-        <article class="player-card" data-ign="N4BX">
+        <article class="player-card" data-ign="N4BX" tabindex="0" role="button" aria-label="Copy username N4BX">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/N4BX/128" alt="N4BX" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">N4BX</span>
-          <span class="player-role-badge">Community</span>
         </article>
 
-        <article class="player-card" data-ign="ReturnFPS">
+        <article class="player-card" data-ign="ReturnFPS" tabindex="0" role="button" aria-label="Copy username ReturnFPS">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/ReturnFPS/128" alt="ReturnFPS" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">ReturnFPS</span>
-          <span class="player-role-badge">Speedrunner</span>
         </article>
 
-        <article class="player-card" data-ign="AnonORaxon">
+        <article class="player-card" data-ign="AnonORaxon" tabindex="0" role="button" aria-label="Copy username AnonORaxon">
           <span class="player-copy-hint">📋</span>
           <div class="player-avatar-wrap">
             <img src="https://mc-heads.net/avatar/AnonORaxon/128" alt="AnonORaxon" class="player-avatar" loading="lazy"
-              onerror="this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
+              onerror="this.onerror=null;this.src='https://mc-heads.net/avatar/MHF_Steve/128'" />
           </div>
           <span class="player-name">AnonORaxon</span>
-          <span class="player-role-badge">Creator</span>
         </article>
       </div>
     </section>
@@ -2285,7 +2246,7 @@
       <!-- Category Filter & Search -->
       <div class="plugins-filter-bar">
         <div class="plugins-categories">
-          <button class="cat-btn active" data-cat="all">All (36)</button>
+          <button class="cat-btn active" data-cat="all" id="allCatBtn">All (44)</button>
           <button class="cat-btn" data-cat="core">Core & Admin</button>
           <button class="cat-btn" data-cat="world">World & Claims</button>
           <button class="cat-btn" data-cat="gameplay">Gameplay & RPG</button>
@@ -2406,7 +2367,6 @@
     <figure class="viewer-card">
       <div id="viewerMedia" class="viewer-media"></div>
       <div class="viewer-bar">
-        <figcaption id="viewerCaption" class="viewer-caption"></figcaption>
         <span id="viewerCounter" class="viewer-counter"></span>
       </div>
     </figure>
@@ -2498,18 +2458,19 @@
         requestAnimationFrame(animRing);
       })();
 
-      document.querySelectorAll('a, button, .player-card, .plugin-pill, .memory-card, input').forEach(el => {
-        el.addEventListener('mouseenter', () => {
-          cur.style.transform = 'translate(-50%, -50%) scale(0.6)';
-          ring.style.transform = 'translate(-50%, -50%) scale(1.4)';
-          ring.style.borderColor = 'rgba(131,223,116,0.9)';
-        });
-        el.addEventListener('mouseleave', () => {
-          cur.style.transform = 'translate(-50%, -50%) scale(1)';
-          ring.style.transform = 'translate(-50%, -50%) scale(1)';
-          ring.style.borderColor = 'rgba(131,223,116,0.6)';
-        });
-      });
+      const hoverSel = 'a, button, .player-card, .plugin-pill, .memory-card, input';
+      const hoverOn = () => {
+        cur.style.transform = 'translate(-50%, -50%) scale(0.6)';
+        ring.style.transform = 'translate(-50%, -50%) scale(1.4)';
+        ring.style.borderColor = 'rgba(131,223,116,0.9)';
+      };
+      const hoverOff = () => {
+        cur.style.transform = 'translate(-50%, -50%) scale(1)';
+        ring.style.transform = 'translate(-50%, -50%) scale(1)';
+        ring.style.borderColor = 'rgba(131,223,116,0.6)';
+      };
+      document.addEventListener('mouseover', e => { if (e.target.closest(hoverSel)) hoverOn(); });
+      document.addEventListener('mouseout', e => { if (e.target.closest(hoverSel)) hoverOff(); });
     }
 
     /* ─── 4. NAVIGATION ACTIVE STATE & PROGRESS BAR ─────── */
@@ -2716,15 +2677,23 @@
     }
 
     document.querySelectorAll(".player-card").forEach(card => {
-      card.addEventListener("click", () => {
+      const copy = async () => {
         const ign = card.dataset.ign || card.querySelector(".player-name")?.textContent.trim();
-        if (ign) {
-          navigator.clipboard.writeText(ign).then(() => {
-            showToast(`Copied IGN: ${ign} 📋`);
-          }).catch(() => {
-            showToast(`Player: ${ign}`);
-          });
+        if (!ign) return;
+        try {
+          await navigator.clipboard.writeText(ign);
+        } catch (_) {
+          const t = document.createElement("textarea");
+          t.value = ign; t.style.position = "fixed"; t.style.opacity = "0";
+          document.body.appendChild(t); t.select();
+          try { document.execCommand("copy"); } catch (__) { }
+          t.remove();
         }
+        showToast(`Copied IGN: ${ign} 📋`);
+      };
+      card.addEventListener("click", copy);
+      card.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); copy(); }
       });
     });
 
@@ -2732,6 +2701,13 @@
     const pluginPills = Array.from(document.querySelectorAll(".plugin-pill"));
     const catButtons = Array.from(document.querySelectorAll(".cat-btn"));
     const pluginSearch = document.getElementById("pluginSearch");
+    // Keep counts in sync with the real lists
+    const allCatBtn = document.getElementById("allCatBtn");
+    if (allCatBtn) allCatBtn.textContent = `All (${pluginPills.length})`;
+    const pluginStat = document.getElementById("pluginStat");
+    if (pluginStat) pluginStat.dataset.target = pluginPills.length;
+    const playerStat = document.querySelector('[data-target="14"]');
+    if (playerStat) playerStat.dataset.target = document.querySelectorAll(".player-card").length;
 
     function filterPlugins() {
       const activeCat = document.querySelector(".cat-btn.active")?.dataset.cat || "all";
@@ -2760,33 +2736,32 @@
 
     /* ─── 11. GALLERY & LIGHTBOX ─────────────────────────── */
     const galleryItems = [
-      { src: "gallary/2026-04-08_01.33.55.png", caption: "Early Server Spawn & Castle Grounds" },
-      { src: "gallary/2026-04-08_01.34.12.png", caption: "Town Hall Construction Night" },
-      { src: "gallary/2026-04-11_08.46.39.png", caption: "Morning Sunrise over the Harbor" },
-      { src: "gallary/2026-04-11_14.56.36.png", caption: "Community Marketplace Gathering" },
-      { src: "gallary/2026-04-13_17.01.39.png", caption: "Nether Highway Opening" },
-      { src: "gallary/2026-04-15_04.43.30.png", caption: "Late Night Mining Expedition" },
-      { src: "gallary/2026-04-15_04.59.34.png", caption: "Central Plaza Clock Tower" },
-      { src: "gallary/2026-04-15_04.59.35.png", caption: "Plaza Aerial View" },
-      { src: "gallary/2026-04-17_21.11.31.png", caption: "Custom Arena Tournament" },
-      { src: "gallary/2026-04-18_04.24.40.png", caption: "Midnight Base Exploration" },
-      { src: "gallary/2026-04-24_18.35.49.png", caption: "The Grand Library Build" },
-      { src: "gallary/2026-05-08_22.27.42.png", caption: "Final Week Community Photo" },
-      { src: "gallary/2026-05-08_22.27.43.png", caption: "Friends Group Picture" },
-      { src: "gallary/2026-05-08_22.27.48.png", caption: "Spawn Center Memorial Torch" },
-      { src: "gallary/2026-05-08_22.28.33.png", caption: "Village Rooftops at Twilight" },
-      { src: "gallary/2026-05-08_22.28.54.png", caption: "The Last Nether Bridge" },
-      { src: "gallary/2026-05-08_22.29.17.png", caption: "Mountain Fortress Overlook" },
-      { src: "gallary/2026-05-08_22.29.33.png", caption: "Final Sunset over ShonarBanglaCraft" },
-      { src: "gallary/2026-05-08_22.30.03.png", caption: "Server Landmarks Remembrance" },
-      { src: "gallary/2026-05-09_20.16.54.png", caption: "Community Hall Farewell Party" },
-      { src: "gallary/2026-05-09_22.04.53.png", caption: "Final Logoff • In Loving Memory" }
+      "gallary/2026-04-08_01.33.55.webp",
+      "gallary/2026-04-08_01.34.12.webp",
+      "gallary/2026-04-11_08.46.39.webp",
+      "gallary/2026-04-11_14.56.36.webp",
+      "gallary/2026-04-13_17.01.39.webp",
+      "gallary/2026-04-15_04.43.30.webp",
+      "gallary/2026-04-15_04.59.34.webp",
+      "gallary/2026-04-15_04.59.35.webp",
+      "gallary/2026-04-17_21.11.31.webp",
+      "gallary/2026-04-18_04.24.40.webp",
+      "gallary/2026-04-24_18.35.49.webp",
+      "gallary/2026-05-08_22.27.42.webp",
+      "gallary/2026-05-08_22.27.43.webp",
+      "gallary/2026-05-08_22.27.48.webp",
+      "gallary/2026-05-08_22.28.33.webp",
+      "gallary/2026-05-08_22.28.54.webp",
+      "gallary/2026-05-08_22.29.17.webp",
+      "gallary/2026-05-08_22.29.33.webp",
+      "gallary/2026-05-08_22.30.03.webp",
+      "gallary/2026-05-09_20.16.54.webp",
+      "gallary/2026-05-09_22.04.53.webp"
     ];
 
     const galleryGrid = document.getElementById("galleryGrid");
     const viewer = document.getElementById("viewer");
     const viewerMedia = document.getElementById("viewerMedia");
-    const viewerCaption = document.getElementById("viewerCaption");
     const viewerCounter = document.getElementById("viewerCounter");
     const viewerClose = document.getElementById("viewerClose");
     const viewerPrev = document.getElementById("viewerPrev");
@@ -2794,42 +2769,50 @@
     let currentGalleryIdx = 0;
     const sizeClasses = ["tall", "wide", ""];
 
-    function buildGalleryCard(item, i) {
+    function buildGalleryCard(src, i) {
       const fig = document.createElement("figure");
       fig.className = `memory-card ${sizeClasses[i % sizeClasses.length]}`.trim();
+      fig.tabIndex = 0;
+      fig.setAttribute("role", "button");
+      fig.setAttribute("aria-label", `Open photo ${i + 1} of ${galleryItems.length}`);
       const img = document.createElement("img");
-      img.src = item.src;
-      img.alt = item.caption;
+      img.src = src;
+      img.alt = `ShonarBanglaCraft screenshot ${i + 1}`;
       img.loading = "lazy";
+      img.decoding = "async";
+      img.width = 1920;
+      img.height = 1080;
       fig.appendChild(img);
 
-      const cap = document.createElement("figcaption");
-      cap.textContent = item.caption;
-      fig.appendChild(cap);
-
       fig.addEventListener("click", () => openLightbox(i));
+      fig.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(i); }
+      });
       return fig;
     }
 
     function renderGallery() {
       if (!galleryGrid) return;
       galleryGrid.innerHTML = "";
-      galleryItems.forEach((item, i) => {
-        galleryGrid.appendChild(buildGalleryCard(item, i));
-      });
+      galleryItems.forEach((src, i) => galleryGrid.appendChild(buildGalleryCard(src, i)));
     }
 
     function openLightbox(idx) {
       currentGalleryIdx = (idx + galleryItems.length) % galleryItems.length;
-      const item = galleryItems[currentGalleryIdx];
-      viewerMedia.innerHTML = `<img src="${item.src}" alt="${item.caption}" class="viewer-content" />`;
-      viewerCaption.textContent = item.caption;
+      const src = galleryItems[currentGalleryIdx];
+      viewerMedia.innerHTML = `<img src="${src}" alt="Screenshot ${currentGalleryIdx + 1}" class="viewer-content" />`;
       viewerCounter.textContent = `${currentGalleryIdx + 1} / ${galleryItems.length}`;
       viewer.classList.add("is-open");
       viewer.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      // preload neighbours for instant next/prev
+      [currentGalleryIdx - 1, currentGalleryIdx + 1].forEach(n => {
+        new Image().src = galleryItems[(n + galleryItems.length) % galleryItems.length];
+      });
     }
 
     function closeLightbox() {
+      document.body.style.overflow = "";
       viewer.classList.remove("is-open");
       viewer.setAttribute("aria-hidden", "true");
       viewerMedia.innerHTML = "";
@@ -2858,7 +2841,19 @@
       if (e.key === "ArrowRight") nextLightbox();
     });
 
+    // Swipe left/right inside the lightbox (mobile)
+    let touchX = null;
+    viewer?.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+    viewer?.addEventListener("touchend", e => {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      touchX = null;
+      if (Math.abs(dx) > 50) (dx > 0 ? prevLightbox : nextLightbox)();
+    }, { passive: true });
+
     renderGallery();
+    const memStat = document.getElementById("memStat");
+    if (memStat) memStat.dataset.target = galleryItems.length;
 
     /* ─── 12. LUMINOUS EMERALD & XP PARTICLES CANVAS ────── */
     (function initEmeraldCanvas() {
@@ -2943,9 +2938,10 @@
           ctx.restore();
         });
 
-        requestAnimationFrame(renderFrame);
+        if (!document.hidden) requestAnimationFrame(renderFrame);
       }
 
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) requestAnimationFrame(renderFrame); });
       requestAnimationFrame(renderFrame);
     })();
 
@@ -2954,11 +2950,13 @@
     const autoScrollText = document.getElementById("autoScrollText");
     let isAutoScrolling = false;
     let autoScrollRaf;
+    let scrollPos = 0;
     const SCROLL_SPEED = window.innerWidth < 768 ? 0.7 : 0.9; // Smooth cinematic pixels/frame
 
     function startAutoScroll() {
       if (isAutoScrolling) return;
       isAutoScrolling = true;
+      scrollPos = window.scrollY;
       if (autoScrollBtn) {
         autoScrollBtn.classList.add("is-active");
         autoScrollBtn.setAttribute("aria-pressed", "true");
@@ -2973,7 +2971,8 @@
           stopAutoScroll();
           return;
         }
-        window.scrollBy(0, SCROLL_SPEED);
+        scrollPos += SCROLL_SPEED;
+        window.scrollTo(0, scrollPos);
         autoScrollRaf = requestAnimationFrame(step);
       }
       autoScrollRaf = requestAnimationFrame(step);
