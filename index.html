@@ -1522,6 +1522,7 @@
       margin: 0;
       overflow: hidden;
       grid-column: span 4;
+      height: 250px;
       min-height: 250px;
       border-radius: 20px;
       border: 1px solid var(--line);
@@ -1536,6 +1537,7 @@
     }
 
     .memory-card.tall {
+      height: 320px;
       min-height: 320px;
     }
 
@@ -1567,20 +1569,6 @@
       height: 48%;
       background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
       pointer-events: none;
-    }
-
-    .memory-card figcaption {
-      position: absolute;
-      inset: auto 14px 14px;
-      z-index: 2;
-      padding: 8px 12px;
-      border-radius: 10px;
-      background: rgba(10, 10, 10, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #f5f5f5;
-      font-size: 0.8rem;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
     }
 
     /* ─── FULL-FEATURED GALLERY LIGHTBOX ────────────────── */
@@ -1641,11 +1629,6 @@
       width: 100%;
       padding: 12px 6px;
       color: #e0e0e0;
-    }
-
-    .viewer-caption {
-      font-size: 0.85rem;
-      color: #fff;
     }
 
     .viewer-counter {
@@ -1806,17 +1789,6 @@
       gap: 8px;
     }
 
-    .footer-mail {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.2s ease;
-    }
-
-    .footer-mail:hover {
-      color: #fff;
-      text-decoration: underline;
-    }
 
     /* ─── RESPONSIVE STYLES ─────────────────────────────── */
     @media (max-width: 900px) {
@@ -2365,9 +2337,6 @@
             AI :]
           </p>
           <div class="creator-actions">
-            <a href="mailto:shonarbanglacraft@gmail.com" class="creator-link">
-              <span>✉️</span> Contact Email
-            </a>
             <a href="#gallery" class="creator-link">
               <span>📸</span> View Memories
             </a>
@@ -2391,10 +2360,6 @@
     <div class="footer-copy">
       <span>Crafted with 💚 for ShonarBanglaCraft & Bangladesh Minecraft</span>
     </div>
-    <div class="footer-contact">
-      <span>Domain trade & contact: </span>
-      <a class="footer-mail" href="mailto:shonarbanglacraft@gmail.com">shonarbanglacraft@gmail.com</a>
-    </div>
   </footer>
 
   <!-- FULL LIGHTBOX VIEWER -->
@@ -2406,7 +2371,6 @@
     <figure class="viewer-card">
       <div id="viewerMedia" class="viewer-media"></div>
       <div class="viewer-bar">
-        <figcaption id="viewerCaption" class="viewer-caption"></figcaption>
         <span id="viewerCounter" class="viewer-counter"></span>
       </div>
     </figure>
@@ -2760,33 +2724,32 @@
 
     /* ─── 11. GALLERY & LIGHTBOX ─────────────────────────── */
     const galleryItems = [
-      { src: "gallary/2026-04-08_01.33.55.png", caption: "Early Server Spawn & Castle Grounds" },
-      { src: "gallary/2026-04-08_01.34.12.png", caption: "Town Hall Construction Night" },
-      { src: "gallary/2026-04-11_08.46.39.png", caption: "Morning Sunrise over the Harbor" },
-      { src: "gallary/2026-04-11_14.56.36.png", caption: "Community Marketplace Gathering" },
-      { src: "gallary/2026-04-13_17.01.39.png", caption: "Nether Highway Opening" },
-      { src: "gallary/2026-04-15_04.43.30.png", caption: "Late Night Mining Expedition" },
-      { src: "gallary/2026-04-15_04.59.34.png", caption: "Central Plaza Clock Tower" },
-      { src: "gallary/2026-04-15_04.59.35.png", caption: "Plaza Aerial View" },
-      { src: "gallary/2026-04-17_21.11.31.png", caption: "Custom Arena Tournament" },
-      { src: "gallary/2026-04-18_04.24.40.png", caption: "Midnight Base Exploration" },
-      { src: "gallary/2026-04-24_18.35.49.png", caption: "The Grand Library Build" },
-      { src: "gallary/2026-05-08_22.27.42.png", caption: "Final Week Community Photo" },
-      { src: "gallary/2026-05-08_22.27.43.png", caption: "Friends Group Picture" },
-      { src: "gallary/2026-05-08_22.27.48.png", caption: "Spawn Center Memorial Torch" },
-      { src: "gallary/2026-05-08_22.28.33.png", caption: "Village Rooftops at Twilight" },
-      { src: "gallary/2026-05-08_22.28.54.png", caption: "The Last Nether Bridge" },
-      { src: "gallary/2026-05-08_22.29.17.png", caption: "Mountain Fortress Overlook" },
-      { src: "gallary/2026-05-08_22.29.33.png", caption: "Final Sunset over ShonarBanglaCraft" },
-      { src: "gallary/2026-05-08_22.30.03.png", caption: "Server Landmarks Remembrance" },
-      { src: "gallary/2026-05-09_20.16.54.png", caption: "Community Hall Farewell Party" },
-      { src: "gallary/2026-05-09_22.04.53.png", caption: "Final Logoff • In Loving Memory" }
+      { src: "gallary/2026-04-08_01.33.55.png" },
+      { src: "gallary/2026-04-08_01.34.12.png" },
+      { src: "gallary/2026-04-11_08.46.39.png" },
+      { src: "gallary/2026-04-11_14.56.36.png" },
+      { src: "gallary/2026-04-13_17.01.39.png" },
+      { src: "gallary/2026-04-15_04.43.30.png" },
+      { src: "gallary/2026-04-15_04.59.34.png" },
+      { src: "gallary/2026-04-15_04.59.35.png" },
+      { src: "gallary/2026-04-17_21.11.31.png" },
+      { src: "gallary/2026-04-18_04.24.40.png" },
+      { src: "gallary/2026-04-24_18.35.49.png" },
+      { src: "gallary/2026-05-08_22.27.42.png" },
+      { src: "gallary/2026-05-08_22.27.43.png" },
+      { src: "gallary/2026-05-08_22.27.48.png" },
+      { src: "gallary/2026-05-08_22.28.33.png" },
+      { src: "gallary/2026-05-08_22.28.54.png" },
+      { src: "gallary/2026-05-08_22.29.17.png" },
+      { src: "gallary/2026-05-08_22.29.33.png" },
+      { src: "gallary/2026-05-08_22.30.03.png" },
+      { src: "gallary/2026-05-09_20.16.54.png" },
+      { src: "gallary/2026-05-09_22.04.53.png" }
     ];
 
     const galleryGrid = document.getElementById("galleryGrid");
     const viewer = document.getElementById("viewer");
     const viewerMedia = document.getElementById("viewerMedia");
-    const viewerCaption = document.getElementById("viewerCaption");
     const viewerCounter = document.getElementById("viewerCounter");
     const viewerClose = document.getElementById("viewerClose");
     const viewerPrev = document.getElementById("viewerPrev");
@@ -2799,13 +2762,9 @@
       fig.className = `memory-card ${sizeClasses[i % sizeClasses.length]}`.trim();
       const img = document.createElement("img");
       img.src = item.src;
-      img.alt = item.caption;
+      img.alt = "Gallery image";
       img.loading = "lazy";
       fig.appendChild(img);
-
-      const cap = document.createElement("figcaption");
-      cap.textContent = item.caption;
-      fig.appendChild(cap);
 
       fig.addEventListener("click", () => openLightbox(i));
       return fig;
@@ -2822,8 +2781,7 @@
     function openLightbox(idx) {
       currentGalleryIdx = (idx + galleryItems.length) % galleryItems.length;
       const item = galleryItems[currentGalleryIdx];
-      viewerMedia.innerHTML = `<img src="${item.src}" alt="${item.caption}" class="viewer-content" />`;
-      viewerCaption.textContent = item.caption;
+      viewerMedia.innerHTML = `<img src="${item.src}" alt="Gallery image" class="viewer-content" />`;
       viewerCounter.textContent = `${currentGalleryIdx + 1} / ${galleryItems.length}`;
       viewer.classList.add("is-open");
       viewer.setAttribute("aria-hidden", "false");
